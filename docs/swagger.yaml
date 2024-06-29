@@ -1,0 +1,244 @@
+definitions:
+  models.Photo:
+    properties:
+      caption:
+        type: string
+      id:
+        type: string
+      photo_url:
+        type: string
+      title:
+        type: string
+      userID:
+        type: string
+    type: object
+  swagger.GetPhotosValue:
+    properties:
+      message:
+        type: string
+      photos:
+        items:
+          $ref: '#/definitions/models.Photo'
+        type: array
+    type: object
+  swagger.LoginValue:
+    properties:
+      id:
+        type: string
+      message:
+        type: string
+      photo:
+        $ref: '#/definitions/models.Photo'
+      username:
+        type: string
+    type: object
+  swagger.ReturnValue:
+    properties:
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /photos:
+    get:
+      description: Get photos untuk mengembalikan response semua foto dalam bentuk
+        array.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.GetPhotosValue'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+      summary: Get Photos
+      tags:
+      - photos
+    post:
+      consumes:
+      - application/json
+      description: Post photo untuk mengupload photo.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+      summary: Post Photo
+      tags:
+      - photos
+  /photos/:photoId:
+    delete:
+      description: Delete photo untuk menghapus data photo yang ada di database.
+      parameters:
+      - description: Photo ID
+        in: query
+        name: photoId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+      summary: Delete Photo
+      tags:
+      - photos
+    put:
+      description: Update photo untuk mengedit data photo yang ada di database.
+      parameters:
+      - description: Photo ID
+        in: query
+        name: photoId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+      summary: Update Photo
+      tags:
+      - photos
+  /users/:userId:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user dengan input payload, lalu payload akan divalidasi.
+        Kemudian data user akan diupdate.
+      parameters:
+      - description: User ID
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+      summary: Delete user
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update user dengan input payload dan parameter, lalu payload akan
+        divalidasi. Kemudian data user akan diupdate.
+      parameters:
+      - description: User ID
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+      summary: Update user
+      tags:
+      - users
+  /users/login:
+    get:
+      consumes:
+      - application/json
+      description: Login user dengan payload input dan akan membuat jwt token baru
+        yang akan di store di cookie
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.LoginValue'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+      summary: Login user
+      tags:
+      - users
+  /users/logout:
+    get:
+      description: Logout user dan cookie user jwt akan dihapus
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+      summary: Logout user
+      tags:
+      - users
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Register user dengan input payload, lalu payload akan divalidasi.
+        Kemudian user baru akan dibuat dan disimpan ke database.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.ReturnValue'
+      summary: Register user
+      tags:
+      - users
+swagger: "2.0"
