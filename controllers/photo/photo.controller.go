@@ -135,6 +135,13 @@ func UpdatePhoto(ctx *gin.Context) {
 		UserID:   photo.UserID,
 	})
 
+	if err := dbconfig.DB.First(&photo, photoIdParse).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{ //cek apakah ada photo dengan userId tersebut atau tidak, jika tidak ada tampilkan response
+			"message": "Parameter tidak valid",
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{ //tampilkan response suksesnya
 		"message": "Berhasil update foto",
 	})
@@ -150,11 +157,19 @@ func UpdatePhoto(ctx *gin.Context) {
 // @Router /photos/:photoId [delete]
 // =====DELETE PHOTO=====
 func DeletePhoto(ctx *gin.Context) {
+	var photo models.Photo                   //initialize photo data
 	photoId := ctx.Param("photoId")          // mengambil parameter photoId
 	photoIdParse, err := uuid.Parse(photoId) //parsing parameter photoId
 
 	if err != nil { // cek apakah parameter valid atau tidak
 		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "Parameter tidak valid",
+		})
+		return
+	}
+
+	if err := dbconfig.DB.First(&photo, photoIdParse).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{ //cek apakah ada photo dengan userId tersebut atau tidak, jika tidak ada tampilkan response
 			"message": "Parameter tidak valid",
 		})
 		return

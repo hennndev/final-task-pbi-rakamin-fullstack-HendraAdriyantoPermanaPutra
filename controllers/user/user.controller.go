@@ -152,10 +152,17 @@ func Logout(ctx *gin.Context) {
 // @Router /users/:userId [put]
 // =====UPDATE=====
 func UpdateUser(ctx *gin.Context) {
-	var user models.User                  // initialize data user yang diinput
-	userId := ctx.Param("userId")         // ambil parameter userId
-	userIdParse := uuid.MustParse(userId) //parsing userId string menjadi uuid
-	validate := validator.New()           //initialize validator
+	var user models.User                   // initialize data user yang diinput
+	userId := ctx.Param("userId")          // ambil parameter userId
+	userIdParse, err := uuid.Parse(userId) //parsing userId string menjadi uuid
+	validate := validator.New()            //initialize validator
+
+	if err != nil { //validasi apakah parameter valid atau tidak
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "Parameter tidak valid",
+		})
+		return
+	}
 
 	if err := ctx.ShouldBindBodyWithJSON(&user); err != nil { //validasi untuk memastikan bahwa struct sudah sesuai di binding pada json
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -179,12 +186,20 @@ func UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	hashPassword, _ := helpers.HashPassword(user.Password)                     //generate hash password
-	dbconfig.DB.Model(&user).Where("id = ?", userIdParse).Updates(models.User{ //update user
+	hashPassword, _ := helpers.HashPassword(user.Password)
+	dbconfig.DB.Model(&user).Where("id = ?", userIdParse).Updates(models.User{
 		Username: user.Username,
 		Email:    user.Email,
 		Password: hashPassword,
 	})
+
+	if err := dbconfig.DB.First(&user, userIdParse).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "Parameter tidak valid",
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{ //tampilkan response sukses
 		"message": "Berhasil update user",
 	})
@@ -201,11 +216,19 @@ func UpdateUser(ctx *gin.Context) {
 // @Router /users/:userId [delete]
 // =====DELETE=====
 func DeleteUser(ctx *gin.Context) {
+	var user models.User
 	userId := ctx.Param("userId")          //ambil parameter userId
 	userIdParse, err := uuid.Parse(userId) //parsing parameter userId menjadi uuid
 
 	if err != nil { //validasi apakah parameter valid atau tidak
 		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "Parameter tidak valid",
+		})
+		return
+	}
+
+	if err := dbconfig.DB.First(&user, userIdParse).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{ //cek apakah ada user dengan userId tersebut atau tidak, jika tidak ada maka tampilkan response
 			"message": "Parameter tidak valid",
 		})
 		return
@@ -218,8 +241,9 @@ func DeleteUser(ctx *gin.Context) {
 		return
 	}
 
-	dbconfig.DB.Delete(&models.User{}, userIdParse) //hapus user yang ada di database berdasarkan parameter userId
-	ctx.JSON(http.StatusOK, gin.H{                  // tampilkan response sukses
+	dbconfig.DB.Delete(&models.User{}, userIdParse)                   //hapus user yang ada di database berdasarkan parameter userId
+	ctx.SetCookie("jwt-token", "", -1, "/", "localhost", false, true) //reset cookie dan auto logout
+	ctx.JSON(http.StatusOK, gin.H{                                    // tampilkan response sukses
 		"message": "Berhasil hapus user",
 	})
 }

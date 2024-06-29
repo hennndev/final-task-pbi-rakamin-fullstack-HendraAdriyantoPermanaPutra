@@ -13,7 +13,7 @@ var JWT_KEY = []byte("JWT-TOKEN-KEY")
 
 // membuat dan melakukan hashing password
 func HashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err
 }
 
