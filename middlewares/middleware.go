@@ -1,7 +1,8 @@
 package middlewares
 
 import (
-	"final-task-pbi-fullstackdev/app"
+	app "final-task-pbi-fullstackdev/app/jwt"
+	"final-task-pbi-fullstackdev/helpers"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		claims := &app.JWTClaim{}
 		tokenParse, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
-			return app.JWT_KEY, nil
+			return helpers.JWT_KEY, nil
 		})
 		//cek apakah token malformed/expired/invalid
 		if err != nil {

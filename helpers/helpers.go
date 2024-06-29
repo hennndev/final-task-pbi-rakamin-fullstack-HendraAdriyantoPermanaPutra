@@ -1,13 +1,15 @@
 package helpers
 
 import (
-	"final-task-pbi-fullstackdev/app"
+	app "final-task-pbi-fullstackdev/app/jwt"
 	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var JWT_KEY = []byte("JWT-TOKEN-KEY")
 
 // membuat dan melakukan hashing password
 func HashPassword(password string) (string, error) {
@@ -41,7 +43,7 @@ func GenerateJWT(email string) string {
 	}
 
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := tokenClaims.SignedString(app.JWT_KEY)
+	token, err := tokenClaims.SignedString(JWT_KEY)
 
 	if err != nil {
 		fmt.Println(err)
